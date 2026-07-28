@@ -1,0 +1,77 @@
+#include <stdio.h>
+    // Stable Bubble Sort to maintain strict order for duplicate weights
+    for (int i = 0; i < edgeCount - 1; i++) {
+        for (int j = 0; j < edgeCount - i - 1; j++) {
+            if (edges[j].weight > edges[j + 1].weight) {
+                struct GraphEdge temp = edges[j];
+                edges[j] = edges[j + 1];
+                edges[j + 1] = temp;
+            }
+        }
+    }
+
+    int mstEdgesCount = 0;
+    int totalMinCost = 0;
+
+    // Process sorted edges one by one
+    for (int i = 0; i < edgeCount; i++) {
+        if (mstEdgesCount == V - 1) {
+            break;
+        }
+
+        int u = edges[i].u;
+        int v = edges[i].v;
+
+        // Inline DSU Find operation with basic lookup loops
+        int root_u = u;
+        while (parent[root_u] != root_u) {
+            root_u = parent[root_u];
+        }
+
+        int root_v = v;
+        while (parent[root_v] != root_v) {
+            root_v = parent[root_v];
+        }
+
+        // If roots don't match, adding this edge doesn't create a cycle
+        if (root_u != root_v) {
+            printf("Edge %d:(%d, %d) cost:%d\n", mstEdgesCount, u, v, edges[i].weight);
+            totalMinCost += edges[i].weight;
+            
+            // Inline DSU Union operation
+            parent[root_u] = root_v;
+            mstEdgesCount++;
+        }
+    }
+
+    printf("Minimum cost= %d\n", totalMinCost);
+
+    // Free all local temporary structures
+    free(parent);
+    free(edges);
+}
+
+
+
+int main() {
+    int V;
+    printf("No of vertices: ");
+    scanf("%d", &V);
+
+    int **cost = (int **)malloc(V * sizeof(int *));
+    for (int i = 0; i < V; i++)
+        cost[i] = (int *)malloc(V * sizeof(int));
+
+    printf("Adjacency matrix:\n");
+    for (int i = 0; i < V; i++)
+        for (int j = 0; j < V; j++)
+            scanf("%d", &cost[i][j]);
+
+    kruskalMST(cost, V);
+
+    for (int i = 0; i < V; i++)
+        free(cost[i]);
+    free(cost);
+
+    return 0;
+}
